@@ -15,14 +15,12 @@ from random import uniform
 class BSMGraphEnv(Env):
     def __init__(self):
         super(BSMGraphEnv, self).__init__()
-        # Action space: continuous range of how much to change each tunable parameter by
         self.action_space = Box(low=-1, high=1, shape=(6,), dtype=np.float32)
-        # Observation space: current parameter values
         self.observation_space = Box(low=-5, high=5, shape=(6,), dtype=np.float32)
         
         # Initialize parameters and graph
-        # Q: Do we have reasonable initial vals here?
-        self.m1 = 1.0  # initial vals
+        # TODO: Do we have reasonable initial vals here?
+        self.m1 = 1.0 
         self.m2 = 1.0
         self.v1 = 1.0
         self.v2 = 1.0
@@ -31,7 +29,7 @@ class BSMGraphEnv(Env):
         self.graph = self.create_graph()
 
     def create_graph(self):
-        # Graph representing BSM model to be inspired by (https://arxiv.org/pdf/2407.07203)
+        # Graph representing BSM model, ideally inspired by, : https://arxiv.org/pdf/2407.07203
         G = nx.Graph()
         G.add_node("H1", type="Higgs", params={"m": self.m1, "v": self.v1, "y": self.y1})
         G.add_node("H2", type="Higgs", params={"m": self.m2, "v": self.v2, "y": self.y2})
@@ -39,7 +37,7 @@ class BSMGraphEnv(Env):
         return G
     
     def reset(self):
-        # Reset parameters to random values over range, not how we will do it in the end probably
+        # Reset parameters to random values, not how we will do it in the end probably
         self.m1 = uniform(0.5, 2.0)
         self.m2 = uniform(0.5, 2.0)
         self.v1 = uniform(0.5, 2.0)
@@ -69,22 +67,24 @@ class BSMGraphEnv(Env):
         return obs, reward, done, {}
     
     # Define reward calculation based on LHC data matching
-    def calculate_lhc_reward(self):
+    def calculate_loss(self):
         # Generate model's projected data based on current parameters
-        projected_data = self.generate_projected_data()
-        lhc_data = np.array([...]) # TODO how to load & parse
+        projected_data = self.generate_projected_data() 
+        lhc_data = np.array([...]) # TODO: how to load & parse LHC data
 
-        #TODO Reproduciton rate
+        # TODO: Reproduciton rate
         
         # Calculate reward based on discrepancy between projected data and LHC data
-        reward = -np.mean((projected_data - lhc_data) ** 2)
-        
-        return reward
+        lhc_loss = (projected_data - lhc_data) ** 2
+        reproduction_rate = 0
 
-    # Method to generate projected data based on current parameter values
+        total_loss = lhc_loss - reproduction_rate
+        return total_loss
+
+    # TODO: Method to generate projected data based on current parameter values
     def generate_projected_data(self):
-        #TODO
         projected_data = []
+
         return projected_data
 
 # Step 2: Define and Train PPO Model
